@@ -4,19 +4,19 @@ from safety.exception import safetyException
 from safety.configuration.s3_operations import S3Operation
 from safety.components.data_ingestion import DataIngestion
 from safety.components.data_validation import DataValidation
-# from safety.components.model_trainer import ModelTrainer
+from safety.components.model_trainer import ModelTrainer
 # from safety.components.model_pusher import ModelPusher
 
 
 from safety.entity.config_entity import (DataIngestionConfig,
-                                       DataValidationConfig)
-                                    #   ModelTrainerConfig,
+                                       DataValidationConfig,
+                                       ModelTrainerConfig)
                                     #   ModelPusherConfig)
 
 
 from safety.entity.artifacts_entity import (DataIngestionArtifact,
-                                          DataValidationArtifact)
-                                        #  ModelTrainerArtifact,
+                                          DataValidationArtifact,
+                                          ModelTrainerArtifact)
                                         #  ModelPusherArtifacts)
 
 
@@ -24,7 +24,7 @@ class TrainPipeline:
     def __init__(self):
         self.data_ingestion_config = DataIngestionConfig()
         self.data_validation_config = DataValidationConfig()
-        # self.model_trainer_config = ModelTrainerConfig()
+        self.model_trainer_config = ModelTrainerConfig()
         # self.model_pusher_config = ModelPusherConfig()
         self.s3_operations = S3Operation()
 
@@ -81,17 +81,17 @@ class TrainPipeline:
         
 
     
-    # def start_model_trainer(self
-    # ) -> ModelTrainerArtifact:
-    #     try:
-    #         model_trainer = ModelTrainer(
-    #             model_trainer_config=self.model_trainer_config,
-    #         )
-    #         model_trainer_artifact = model_trainer.initiate_model_trainer()
-    #         return model_trainer_artifact
+    def start_model_trainer(self
+    ) -> ModelTrainerArtifact:
+        try:
+            model_trainer = ModelTrainer(
+                model_trainer_config=self.model_trainer_config,
+            )
+            model_trainer_artifact = model_trainer.initiate_model_trainer()
+            return model_trainer_artifact
 
-    #     except Exception as e:
-    #         raise safetyException(e, sys)
+        except Exception as e:
+            raise safetyException(e, sys)
         
 
     
@@ -119,12 +119,12 @@ class TrainPipeline:
             data_validation_artifact = self.start_data_validation(
                  data_ingestion_artifact=data_ingestion_artifact
              )
-            # if data_validation_artifact.validation_status == True:
-            #     model_trainer_artifact = self.start_model_trainer()
+            if data_validation_artifact.validation_status == True:
+                model_trainer_artifact = self.start_model_trainer()
             #     model_pusher_artifact = self.start_model_pusher(model_trainer_artifact=model_trainer_artifact,s3=self.s3_operations)
             
-            # else:
-            #     raise Exception("Your data is not in correct format")
+            else:
+                raise Exception("Your data is not in correct format")
 
 
         except Exception as e:
